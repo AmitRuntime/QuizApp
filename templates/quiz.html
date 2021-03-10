@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div id="app" class="mt-5 pt-5">
+        <div class="container">
+            <form @submit.prevent="handleSubmit()">
+                <div v-for="(question,index) in questions" :key="question.id" class="mt-2">
+                    <p>[[index+1]]. [[question.question]]</p>
+                    <div v-for="(option, i) in question.options">
+                        <input :id="'radio-'+question.id" @change="check(index, i, question.id)" type="radio" :value="option" :name="'option-'+question.id">
+                        [[option]]
+                    </div>
+                    <p :id="'show_message-'+question.id"></p>
+                </div>
+
+                    <button class="btn btn-success" type="submit">Submit</button>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+        new Vue({
+            delimiters: ['[[', ']]'],
+            el: '#app',
+            data: {
+                title: 'Welcome to My Journal',
+                course_id : '{{id}}',
+                questions : [],
+                solutions : []
+            },
+            methods:{
+                check(question_index, option_index, id){
+                    var question = this.questions[question_index]
+                    var element = document.getElementById(`show_message-${id}`)
+                    var radios = document.querySelectorAll(`#radio-${id}`)
+
+                    for(var i=0 ; i<radios.length; i++)
+                    {
+                        radios[i].disabled = true
+                    }
+
+                    var solution = {"question_id":id, "option" : option_index+1}
+                    this.solutions.push(solution)
+                    //if((option_index + 1 ).toString() == question.answer){
+                    //    element.classList = "text-success mt-3"
+                    //    element.innerHTML = "Right Answer"
+                    //}else{
+                    //    element.classList = "text-danger mt-3"
+                    //    element.innerHTML = "Wrong Answer"
+                    //}
+                    
+                },
+                handleSubmit(){
+                    fetch("/api/check_score", {
+                        method: "POST",
+                        headers: {
+                            "Accept" : "application/json",
+                            "Content-Type":"application/json"
+                        },
+                        body: JSON.stringify({
+                            data: JSON.stringify(this.solutions),
+                            course_id : this.course_id
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(result =>{
+                        console.log(result)
+                        window.location = "/view_score"
+                    })
+                }
+            },
+            mounted(){
+                fetch(`/api/${this.course_id}`)
+                .then(res => res.json())
+                .then(result => {
+                    this.questions = result
+                    console.log(result)
+                })
+            }
+        })
+    </script>
+{% endblock %}

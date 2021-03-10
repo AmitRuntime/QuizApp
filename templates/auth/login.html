@@ -1,0 +1,26 @@
+{% extends '../base.html' %}
+
+{% block content %}
+
+
+<div class="container text-center mt-5">
+    <main class="form-signin">
+    <form method="post">
+        {% csrf_token %}
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{error}}
+        </div>
+        {% endif %}
+        
+        <h1 class="h3 mb-3 fw-normal">Please Login </h1>
+        <label for="inputEmail" class="visually-hidden mb-3">Email address</label>
+        <input type="email" name="email" id="inputEmail" class="form-control mb-3" placeholder="Email address" required autofocus>
+        <label for="inputPassword" class="visually-hidden mb-3">Password</label>
+        <input type="password" name="password" id="inputPassword" class="form-control mb-3" placeholder="Password" required>
+        <p>Don't have Account <a href="register">Register here</a></p>
+        <button class="btn  btn-primary" type="submit">Login</button>
+    </form>
+    </main>
+</div>
+{% endblock %}
